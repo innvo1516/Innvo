@@ -1,0 +1,14 @@
+{
+  "tone": {
+    "chill_hinglish": 1.2,
+    "crisp_concise": 1.0,
+    "detailed_guide": 0.8
+  },
+  "search_need": {
+    "search": 1.0,
+    "local_only": 1.0
+  },
+  "memory_action": {
+    "propose": 1.0
+  }
+}

@@ -1,0 +1,6 @@
+# Innvo - Lightweight dependencies for low-end hardware
+rich>=13.4.0
+duckduckgo-search>=6.0.0
+edge-tts>=6.1.0
+pygame>=2.5.0
+requests>=2.31.0

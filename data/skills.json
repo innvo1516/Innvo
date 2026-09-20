@@ -1,0 +1,23 @@
+{
+  "get_system_metrics": {
+    "name": "get_system_metrics",
+    "description": "Returns current CPU, RAM, Disk space, and Battery metrics.",
+    "type": "builtin",
+    "q_value": 1.0,
+    "invocations": 0
+  },
+  "run_terminal_command": {
+    "name": "run_terminal_command",
+    "description": "Runs a shell command (PowerShell on Windows, Bash on Linux/Termux).",
+    "type": "builtin",
+    "q_value": 1.0,
+    "invocations": 0
+  },
+  "execute_python_code": {
+    "name": "execute_python_code",
+    "description": "Executes a Python code block and returns stdout/stderr.",
+    "type": "builtin",
+    "q_value": 1.0,
+    "invocations": 0
+  }
+}

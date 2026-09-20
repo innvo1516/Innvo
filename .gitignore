@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data caches & audio artifacts
+data/cache/
+*.mp3
+*.wav
+
+# Test artifacts
+data_test*/
+data_test_tools/
+
+# Environment & Secrets
+.env
+*.log
+
+# Large local models
+models/*.gguf
+models/*.bin
+
+# OS generated
+.DS_Store
+Thumbs.db

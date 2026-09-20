@@ -13,8 +13,12 @@ import config
 
 logger = logging.getLogger("InnvoAudioEngine")
 
-# Suppress pygame prompt banner
+# Suppress pygame prompt banner and pkg_resources warning
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources is deprecated.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="pygame.pkgdata")
+
 try:
     import pygame
     PYGAME_AVAILABLE = True

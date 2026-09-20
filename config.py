@@ -1,7 +1,13 @@
 import os
 import sys
+import warnings
 import platform
 from pathlib import Path
+
+# Suppress harmless third-party deprecation warnings
+warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources is deprecated.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="pygame.pkgdata")
+warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*renamed to.*ddgs.*")
 
 # Base Paths
 BASE_DIR = Path(__file__).resolve().parent

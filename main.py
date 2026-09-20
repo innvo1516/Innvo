@@ -1,4 +1,13 @@
+import os
 import sys
+import warnings
+
+# Suppress harmless third-party deprecation warnings
+warnings.filterwarnings("ignore", category=UserWarning, message=".*pkg_resources is deprecated.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="pygame.pkgdata")
+warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*renamed to.*ddgs.*")
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+
 import argparse
 import config
 from brain.orchestrator import InnvoOrchestrator

@@ -21,15 +21,23 @@ class SkillRegistry:
         self.skills: Dict[str, Dict[str, Any]] = self._load_registry()
 
     def _load_registry(self) -> Dict[str, Dict[str, Any]]:
+        loaded = {}
         if self.registry_file.exists():
             try:
                 with open(self.registry_file, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    loaded = json.load(f)
             except Exception:
-                pass
+                loaded = {}
         
         # Default built-in system primitives
         default_skills = {
+            "get_system_time": {
+                "name": "get_system_time",
+                "description": "Returns current live date, day, time, and timestamp.",
+                "type": "builtin",
+                "q_value": 1.0,
+                "invocations": 0
+            },
             "get_system_metrics": {
                 "name": "get_system_metrics",
                 "description": "Returns current CPU, RAM, Disk space, and Battery metrics.",
@@ -52,8 +60,11 @@ class SkillRegistry:
                 "invocations": 0
             }
         }
-        self._save_registry(default_skills)
-        return default_skills
+        for k, v in default_skills.items():
+            if k not in loaded:
+                loaded[k] = v
+        self._save_registry(loaded)
+        return loaded
 
     def _save_registry(self, skills_dict: Dict[str, Dict[str, Any]]):
         try:
@@ -111,7 +122,12 @@ class SkillRegistry:
         tool_meta["invocations"] = tool_meta.get("invocations", 0) + 1
 
         # 1. Built-in Primitives
-        if clean_name == "get_system_metrics":
+        if clean_name == "get_system_time":
+            res = self.executor.get_system_time()
+            self._save_registry(self.skills)
+            return {"success": True, "data": res}
+
+        elif clean_name == "get_system_metrics":
             res = self.executor.get_system_metrics()
             self._save_registry(self.skills)
             return {"success": True, "data": res}

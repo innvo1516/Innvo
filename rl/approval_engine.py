@@ -20,6 +20,11 @@ class ApprovalEngine:
         text = user_text.strip()
         text_lower = text.lower()
 
+        # Guard: Skip system queries, time, battery, tool requests from being saved as user facts
+        non_fact_cues = ["time", "date", "tarikh", "samay", "kitne baje", "battery", "disk space", "storage", "ram", "cpu", "tool banao", "create tool", "run command"]
+        if any(cue in text_lower for cue in non_fact_cues) and not any(w in text_lower for w in ["mera", "meri", "mujhe", "my name", "i like", "i prefer"]):
+            return None
+
         # ---------------------------------------------------------
         # 1. Fast Pattern Matching
         # ---------------------------------------------------------

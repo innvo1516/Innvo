@@ -107,8 +107,19 @@ class ToolExecutor:
             }
 
     # -------------------------------------------------------------
-    # 3. Cross-Platform System Metrics
+    # 3. Cross-Platform System Metrics & Time
     # -------------------------------------------------------------
+    def get_system_time(self) -> Dict[str, Any]:
+        """Returns current live system date, day, and time."""
+        from datetime import datetime
+        now = datetime.now()
+        return {
+            "time": now.strftime("%I:%M:%S %p"),
+            "date": now.strftime("%A, %d %B %Y"),
+            "day": now.strftime("%A"),
+            "timestamp": now.isoformat()
+        }
+
     def get_system_metrics(self) -> Dict[str, Any]:
         """
         Returns real-time CPU, RAM, Disk, and Battery metrics.

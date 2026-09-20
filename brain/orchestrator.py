@@ -129,7 +129,14 @@ class InnvoOrchestrator:
         tool_output_context = ""
         used_tool_name = None
 
-        if any(w in text_lower for w in ["battery", "battery kitni hai", "battery percent", "charging"]):
+        if any(w in text_lower for w in ["time", "date", "tarikh", "samay", "kitne baje", "current time", "what time", "today date", "aaj kaun sa din", "what day"]):
+            m = self.registry.execute("get_system_time")
+            if m["success"]:
+                used_tool_name = "get_system_time"
+                d = m["data"]
+                tool_output_context = f"[Live System Date & Time: {d['date']}, {d['time']}]"
+
+        elif any(w in text_lower for w in ["battery", "battery kitni hai", "battery percent", "charging"]):
             m = self.registry.execute("get_system_metrics")
             if m["success"]:
                 used_tool_name = "get_system_metrics"
@@ -212,8 +219,30 @@ class InnvoOrchestrator:
                 call_data = json.loads(tool_call_match.group(1).strip())
                 t_name = call_data.get("tool")
                 t_args = call_data.get("args", {})
-                tool_res = self.registry.execute(t_name, **t_args)
                 base_reply = re.sub(r"```tool\s*.+?\s*```", "", base_reply).strip()
+
+                tool_res = self.registry.execute(t_name, **t_args)
+
+                # AUTONOMOUS SELF-DEVELOPMENT: If tool was not found, synthesize it on the fly!
+                if not tool_res.get("success") and "not found" in str(tool_res.get("error", "")).lower():
+                    task_desc = f"Create a Python tool named '{t_name}' to satisfy: '{text}'"
+                    tool_info = self.tool_creator.synthesize_tool(task_desc, self.slm)
+                    if tool_info:
+                        self.registry.register_tool(tool_info["name"], tool_info["description"], tool_info["code"], initial_q=1.0)
+                        tool_res = self.registry.execute(tool_info["name"], **t_args)
+                        self.tool_creator.stage_proposal(tool_info)
+                        base_reply += f"\n[Self-Developed Tool '{tool_info['name']}']: {tool_res.get('data') or tool_res.get('stdout') or tool_res.get('output')}"
+                        proposal_msg = self.tool_creator.get_proposal_text()
+                        base_reply += f"\n\n[Skill Learning Proposal]: {proposal_msg}"
+                        self._append_to_history("assistant", base_reply)
+                        self.audio.speak_async(base_reply)
+                        return {
+                            "reply": base_reply,
+                            "pending_approval": True,
+                            "proposal": proposal_msg,
+                            "tool_used": tool_info["name"]
+                        }
+
                 if tool_res.get("success"):
                     base_reply += f"\n[Tool Output]: {tool_res.get('data') or tool_res.get('stdout') or tool_res.get('output')}"
                 else:

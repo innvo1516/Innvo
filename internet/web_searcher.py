@@ -1,12 +1,19 @@
+import warnings
 import logging
 import urllib.parse
 from typing import List, Dict, Any
 import requests
 
+# Suppress rename warning from duckduckgo_search
+warnings.filterwarnings("ignore", category=RuntimeWarning, message=".*renamed to.*ddgs.*")
+
 try:
     from ddgs import DDGS
 except ImportError:
-    from duckduckgo_search import DDGS
+    try:
+        from duckduckgo_search import DDGS
+    except ImportError:
+        DDGS = None
 
 import config
 

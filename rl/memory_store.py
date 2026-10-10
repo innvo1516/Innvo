@@ -71,6 +71,11 @@ class MemoryStore:
                 conn.commit()
                 return cursor.lastrowid
 
+    def add_memory(self, content: str, category: str = "general", initial_q: float = 1.0) -> int:
+        """Convenience method to save memory with automatically generated key."""
+        key = content[:30].strip().lower()
+        return self.save_memory(category=category, key=key, content=content, initial_q=initial_q)
+
     def update_q_value(self, memory_id: int, reward: float) -> float:
         """Applies Bellman/Q-learning update: Q = Q + alpha * (R - Q)"""
         with self._get_conn() as conn:

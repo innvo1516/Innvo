@@ -124,6 +124,58 @@ class TerminalUI:
 
         self.console.print(table)
 
+    def show_rules(self):
+        try:
+            if not config.CONSTITUTION_PATH.exists():
+                self.console.print("[red]Constitution file missing![/red]")
+                return
+            data = json.loads(config.CONSTITUTION_PATH.read_text(encoding="utf-8"))
+            table = Table(title=f"Innvo Sovereign Constitution (v{data.get('version')})", border_style="red")
+            table.add_column("Law ID", style="bold red", width=8)
+            table.add_column("Principle", style="bold yellow", width=24)
+            table.add_column("Constitutional Statement", style="white")
+
+            for law in data.get("laws", []):
+                table.add_row(law["id"], law["name"], law["statement"])
+
+            self.console.print(table)
+        except Exception as e:
+            self.console.print(f"[red]Error loading constitution: {e}[/red]")
+
+    def show_kg(self):
+        triples = self.orchestrator.knowledge_graph.list_all(limit=25)
+        if not triples:
+            self.console.print("[yellow]Knowledge Graph is currently empty.[/yellow]")
+            return
+
+        table = Table(title="Innvo Semantic Knowledge Graph (Triples)", border_style="magenta")
+        table.add_column("Subject", style="cyan")
+        table.add_column("Predicate (Relation)", style="yellow")
+        table.add_column("Object (Entity/Value)", style="green")
+        table.add_column("Confidence", style="white", justify="right")
+
+        for t in triples:
+            table.add_row(t["subject"], t["predicate"], t["object_val"], f"{t['confidence']:.2f}")
+
+        self.console.print(table)
+
+    def show_vault_status(self):
+        from security.shadow_vault import ShadowVault
+        vault = ShadowVault()
+        snaps = vault.list_snapshots()
+        table = Table(title="Air-Gapped Shadow Brain Cold Vault", border_style="cyan")
+        table.add_column("Cold Snapshot Archive", style="white")
+        table.add_column("Size", style="green", justify="right")
+        table.add_column("Created", style="dim")
+
+        if not snaps:
+            table.add_row("No cold snapshots found", "-", "-")
+        else:
+            for s in snaps:
+                table.add_row(s["filename"], f"{s['size_kb']} KB", s["modified"])
+
+        self.console.print(table)
+
     def show_help(self):
         help_text = """
 [bold cyan]Voice, Chat & Tool Commands:[/bold cyan]
@@ -133,6 +185,11 @@ class TerminalUI:
   [green]/context[/green]        - View active multi-turn conversation history
   [green]/clear[/green]          - Clear active conversation context (Start fresh topic)
   [green]/memories[/green]       - View all permanent memories and their RL Q-scores
+  [green]/kg[/green]             - View semantic Knowledge Graph entity triples
+  [green]/idle on/off[/green]    - Toggle autonomous background curiosity learning
+  [green]/rules[/green]          - View immutable Constitutional Laws & Tripwires
+  [green]/sync[/green]           - Trigger cross-device hive-mind delta sync
+  [green]/vault[/green]          - View air-gapped shadow backup status
   [green]/stats[/green]          - View Reinforcement Learning performance metrics
   [green]/voice on/off[/green]  - Toggle voice output
   [green]/help[/green]           - Display this help message
@@ -194,6 +251,38 @@ class TerminalUI:
             self.orchestrator.audio.enabled = False
             self.orchestrator.audio.stop()
             self.console.print("[yellow]Voice output DISABLED (Text only mode)[/yellow]")
+            return True
+        elif cmd_clean == "/rules":
+            self.show_rules()
+            return True
+        elif cmd_clean == "/kg":
+            self.show_kg()
+            return True
+        elif cmd_clean == "/vault" or cmd_clean == "/vault status":
+            self.show_vault_status()
+            return True
+        elif cmd_clean.startswith("/idle"):
+            if "on" in cmd_clean:
+                self.orchestrator.toggle_idle_learning(True)
+                self.console.print("[bold green]Autonomous Idle Learning ENABLED[/bold green]")
+            elif "off" in cmd_clean:
+                self.orchestrator.toggle_idle_learning(False)
+                self.console.print("[yellow]Autonomous Idle Learning DISABLED[/yellow]")
+            else:
+                st = self.orchestrator.get_idle_status()
+                en_str = "[bold green]ON[/bold green]" if st["enabled"] else "[yellow]OFF[/yellow]"
+                self.console.print(f"Idle Learning: {en_str} | System State: {st['reason']} | Staged Topics: {st['staged_count']}")
+            return True
+        elif cmd_clean.startswith("/sync"):
+            from sync.sync_broker import SyncBroker
+            broker = SyncBroker(
+                memory_store=self.orchestrator.memory_store,
+                skill_registry=self.orchestrator.registry,
+                knowledge_graph=self.orchestrator.knowledge_graph,
+                bandit=self.orchestrator.bandit
+            )
+            out_file = broker.export_to_file()
+            self.console.print(f"[bold green]Hive-Mind Delta Sync Packet Exported successfully:[/bold green] {out_file.name}")
             return True
         elif cmd_clean == "/help":
             self.show_help()

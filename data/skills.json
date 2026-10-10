@@ -19,5 +19,12 @@
     "type": "builtin",
     "q_value": 1.0,
     "invocations": 0
+  },
+  "get_system_time": {
+    "name": "get_system_time",
+    "description": "Returns current live date, day, time, and timestamp.",
+    "type": "builtin",
+    "q_value": 1.0,
+    "invocations": 4
   }
 }

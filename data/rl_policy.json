@@ -9,6 +9,6 @@
     "local_only": 1.0
   },
   "memory_action": {
-    "propose": 1.0
+    "propose": 0.775
   }
 }

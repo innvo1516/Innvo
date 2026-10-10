@@ -103,6 +103,9 @@ class SkillRegistry:
     def list_skills(self) -> List[Dict[str, Any]]:
         return list(self.skills.values())
 
+    def list_tools(self) -> List[Dict[str, Any]]:
+        return self.list_skills()
+
     def get_tool_signatures_prompt(self) -> str:
         """Generates formatted documentation of available tools for the SLM."""
         lines = ["[Available System & Learned Tools]"]

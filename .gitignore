@@ -23,3 +23,8 @@ models/*.bin
 # OS generated
 .DS_Store
 Thumbs.db
+
+# Air-Gapped Vault and Transient Sync Dumps
+.shadow_vault/
+data/sync/
+data/curiosity_staged.json

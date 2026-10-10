@@ -58,3 +58,26 @@ REWARD_CORRECTION = -1.0    # User corrected a fact or told Innvo it made an err
 # Search & Retrieval Configuration
 MAX_SEARCH_RESULTS = 4
 SEARCH_TIMEOUT_SECONDS = 6
+
+# Security & Constitutional Tripwires
+SECURITY_DIR = BASE_DIR / "security"
+CONSTITUTION_PATH = SECURITY_DIR / "constitution.json"
+CONSTITUTION_HASH_PATH = SECURITY_DIR / "constitution.hash"
+SHADOW_VAULT_DIR = BASE_DIR / ".shadow_vault"
+DEFAULT_MASTER_SECRET = "INNVO_HUMAN_OPERATOR_SOVEREIGN_SEED_2026"
+
+# Ensure security directories exist
+SECURITY_DIR.mkdir(exist_ok=True)
+SHADOW_VAULT_DIR.mkdir(exist_ok=True)
+
+# Knowledge Graph & Semantic Triplets
+KNOWLEDGE_GRAPH_PATH = DATA_DIR / "knowledge_graph.db"
+
+# Hive-Mind Micro-Delta Sync
+SYNC_DIR = DATA_DIR / "sync"
+SYNC_DIR.mkdir(exist_ok=True)
+
+# Autonomous Idle Curiosity Configuration
+IDLE_LEARNING_ENABLED = False  # Strictly OFF by default. Toggled via /idle command.
+IDLE_CHECK_INTERVAL_SECONDS = 60
+IDLE_MAX_DAILY_QUERIES = 15

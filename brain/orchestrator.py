@@ -4,6 +4,10 @@ import logging
 from typing import Dict, Any, Tuple, Optional, List
 
 import config
+from security.tamper_guard import TamperGuard
+from brain.knowledge_graph import KnowledgeGraph
+from brain.truth_filter import TruthFilter
+from learning.idle_daemon import IdleCuriosityDaemon
 from rl.memory_store import MemoryStore
 from rl.approval_engine import ApprovalEngine
 from rl.contextual_bandit import ContextualBandit
@@ -37,6 +41,16 @@ class InnvoOrchestrator:
         self.registry = SkillRegistry()
         self.tool_creator = ToolCreator(self.registry)
 
+        # Security Subsystem & Constitutional Watchdog
+        self.tamper_guard = TamperGuard()
+        
+        # Knowledge Graph & Semantic Reasoning
+        self.knowledge_graph = KnowledgeGraph()
+        self.truth_filter = TruthFilter(self.searcher)
+
+        # Autonomous Idle Curiosity Daemon (Isolated Switch)
+        self.idle_daemon = IdleCuriosityDaemon(self.searcher)
+
         # Multi-turn Short-Term Conversation Context
         self.conversation_history: List[Dict[str, str]] = []
         self.max_history_turns = max_history_turns
@@ -59,6 +73,12 @@ class InnvoOrchestrator:
             return {"reply": "", "pending_approval": False}
 
         # -------------------------------------------------------------
+        # STEP 0: Constitutional Watchdog & Cognitive Poison-Pill Guard
+        # -------------------------------------------------------------
+        self.tamper_guard.verify_constitution()
+        self.tamper_guard.scan_cognitive_poison_pill(text, source="user_input")
+
+        # -------------------------------------------------------------
         # STEP 1A: Check if user is answering a PENDING TOOL PROPOSAL
         # -------------------------------------------------------------
         if self.tool_creator.has_pending_proposal():
@@ -77,8 +97,12 @@ class InnvoOrchestrator:
         # STEP 1B: Check if user is answering a PENDING MEMORY PROPOSAL
         # -------------------------------------------------------------
         if self.approval_engine.has_pending_candidate():
+            cand = self.approval_engine.pending_candidate
             handled, reply_msg, reward = self.approval_engine.process_approval_response(text)
             if handled:
+                if reward == config.REWARD_APPROVAL and cand:
+                    fact_str = cand.get("fact", "")
+                    self.knowledge_graph.add_triple(config.USER_NAME, "prefers/knows", fact_str, confidence=1.0)
                 self.bandit.update_policy("memory_action", "propose", reward)
                 self.audio.speak_async(reply_msg)
                 self._append_to_history("user", text)
@@ -183,10 +207,15 @@ class InnvoOrchestrator:
         if should_search:
             internet_context = self.searcher.get_summary_context(text)
 
-        # Combine tools and grounding
+        # Combine tools, knowledge graph, and grounding
         grounding = ""
         if tool_output_context:
             grounding += tool_output_context + "\n"
+        
+        kg_context = self.knowledge_graph.get_summary_for_context(text)
+        if kg_context:
+            grounding += kg_context + "\n"
+
         if internet_context:
             grounding += internet_context + "\n"
 
@@ -208,6 +237,9 @@ class InnvoOrchestrator:
             history=self.conversation_history,
             context=grounding
         )
+
+        # Constitutional Poison-Pill Verification on Model Output
+        self.tamper_guard.scan_cognitive_poison_pill(base_reply, source="slm_output")
 
         # -------------------------------------------------------------
         # STEP 9: Check if SLM output contained a dynamic tool call
@@ -283,3 +315,20 @@ class InnvoOrchestrator:
         self.conversation_history.append({"role": role, "content": content})
         if len(self.conversation_history) > self.max_history_turns:
             self.conversation_history.pop(0)
+
+    def toggle_idle_learning(self, enable: bool) -> bool:
+        """Toggles background idle learning without touching conversational learning."""
+        if enable:
+            self.idle_daemon.enable()
+        else:
+            self.idle_daemon.disable()
+        return self.idle_daemon.is_enabled()
+
+    def get_idle_status(self) -> Dict[str, Any]:
+        ready, reason = self.idle_daemon.check_system_readiness()
+        return {
+            "enabled": self.idle_daemon.is_enabled(),
+            "ready": ready,
+            "reason": reason,
+            "staged_count": len(self.idle_daemon.get_staged_curiosities())
+        }

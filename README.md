@@ -1,99 +1,177 @@
-# ⚡ Innvo - Cross-Platform Local RL AI Assistant
+# ⚡ Innvo - Cross-Platform Local Autonomous AI Companion
 
-**Innvo** is a personal AI assistant (like Jarvis) engineered for **low-end hardware (laptops and Android phones)** with **zero paid APIs**, **bilingual Hindi & English support**, **free internet search**, and an **interactive Reinforcement Learning (RL) memory engine**.
-
----
-
-## 🌟 Key Features
-
-1. **Zero Cloud/API Fees**: Operates 100% locally or using free protocols (DuckDuckGo search, Wikipedia REST, Edge Neural TTS).
-2. **Interactive RL Memory**:
-   - Innvo listens and extracts candidate facts, preferences, and rules.
-   - **Asks for user approval before saving**: *"Bhai, maine notice kiya ki aapne bola: '...'. Kya main ise apni permanent memory me save kar lu? (Haan/Nahi)"*
-   - Positive feedback (`Haan` / `Yes`) gives **+1.0 Reward** and boosts the memory's Q-value.
-   - Rejection (`Nahi` / `No`) discards candidate and records a negative penalty.
-   - Corrections trigger **Reflexion** and update behavioral constraints.
-3. **Hyper-Realistic Indian Voice**:
-   - **Default Voice**: `hi-IN-MadhurNeural` (deep, natural Indian male voice).
-   - **Android (Termux)**: Native `termux-tts-speak` for zero-overhead speech.
-   - **Offline Fallback**: Windows SAPI5 (`pyttsx3`).
-4. **Free Live Internet Search**:
-   - Real-time web info via DuckDuckGo and Wikipedia without needing any API keys.
-5. **Ultra-Lightweight Sci-Fi TUI**:
-   - Built with `Rich`.
-   - Runs directly in Windows Terminal/PowerShell and Android Termux using less than **40 MB RAM**.
+**Innvo** is a personal AI companion (like Jarvis) engineered to run across **all your devices (Windows laptop, Android phone, Linux / Raspberry Pi, Mac, and embedded satellites)** with:
+- **Zero Paid APIs / 100% Free**: Operates locally or via free protocols.
+- **Constitutional Security & Dual Kill-Switch Tripwires**: Tamper-proof rulebook & poison-pill memory boundary.
+- **Air-Gapped Shadow Brain Cold Vault**: Encrypted snapshots recoverable via a 12-word seed phrase.
+- **Bilingual Hindi & English Audio**: Natural Indian male neural voice (`hi-IN-MadhurNeural`) with offline fallbacks.
+- **Interactive Reinforcement Learning (RL) Memory**: Learns facts & preferences only with human approval.
+- **Self-Developing Dynamic Tools**: Writes, tests, and saves its own Python tools on the fly.
+- **Semantic Knowledge Graph & Truth Triangulation**: Multi-source fact verification across DuckDuckGo and Wikipedia.
+- **Autonomous Idle Curiosity**: Explores topics in background only when idle & plugged in (strictly opt-in switch `/idle on/off`).
+- **Distributed Hive-Mind P2P Sync**: Lightweight micro-delta sync packets (< 50 KB) across devices.
 
 ---
 
-## 🚀 Running on Windows Laptop
+## 💻 1. Running on Windows PC / Laptop
 
-### 1. Start Innvo in Voice & Terminal Mode
-```bash
-# Standard interactive mode (type 'v' or press Enter to speak into mic)
+### Step 1: Install Requirements
+1. Install **Python 3.10+** (if not already installed).
+2. Install **Ollama** from [ollama.com](https://ollama.com/) and pull a lightweight model:
+   ```powershell
+   ollama run gemma2:2b
+   ```
+
+### Step 2: Clone & Install Dependencies
+```powershell
+git clone https://github.com/innvo1516/Innvo.git
+cd Innvo
+pip install -r requirements.txt
+```
+
+### Step 3: Run Innvo
+```powershell
+# Standard interactive mode (Voice + Rich Sci-Fi TUI)
 python main.py
 
-# Continuous Hands-Free Voice Mode (Innvo speaks, then listens to you automatically)
+# Continuous Hands-Free Voice Mode (Automatic continuous listening loop)
 python main.py --continuous
 
-# Text-only mode (No speech output)
+# Text-only mode (Silent, no audio output)
 python main.py --no-voice
 ```
 
 ---
 
-## 🎙️ How to Talk with Your Voice
+## 📱 2. Running on Android Phone (via Termux)
 
-When Innvo is running:
-- Type **`v`** or **`/listen`** and press Enter.
-- The terminal will display: `🎙️ Listening... (Speak naturally in Hindi, English, or Hinglish)`.
-- Speak into your microphone (e.g. *"Innvo, kal mera birthday hai"* or *"What is ISRO?"*).
-- Innvo transcribes your voice, thinks via local Ollama (`gemma2:2b`), searches the internet if needed, updates RL memory, and **speaks back to you using `hi-IN-MadhurNeural`**!
-- Type **`/continuous`** to toggle hands-free conversation mode where Innvo automatically listens after every response!
-
----
-
-## 📱 Running on Android Phone (via Termux)
+Runs 100% free on budget Android phones (2GB-4GB RAM) using Termux!
 
 ### Step 1: Install Termux & Termux:API
-1. Install **Termux** from [F-Droid](https://f-droid.org/en/packages/com.termux/).
-2. Install **Termux:API** from F-Droid.
+1. Download & install **Termux** from [F-Droid](https://f-droid.org/en/packages/com.termux/) *(do not use Google Play Store version as it is outdated)*.
+2. Download & install **Termux:API** from [F-Droid](https://f-droid.org/en/packages/com.termux.api/).
 
-### Step 2: Setup in Termux
+### Step 2: 1-Click Setup
 Open Termux and run:
 ```bash
-pkg update && pkg upgrade -y
-pkg install python git termux-api -y
-```
-
-### Step 3: Clone or Copy Innvo & Install
-```bash
-git clone https://github.com/your-username/Innvo.git
+pkg update -y && pkg install -y git
+git clone https://github.com/innvo1516/Innvo.git
 cd Innvo
-pip install -r requirements.txt
-python main.py
+chmod +x setup_termux.sh
+./setup_termux.sh
+```
+
+### Step 3: Connect to Laptop Brain OR Run Standalone
+- **Option A (Distributed Hive-Mind — Recommended for 0% Phone CPU usage)**:
+  Make sure your phone and laptop are on the same Wi-Fi. Run:
+  ```bash
+  export OLLAMA_HOST=http://<YOUR_LAPTOP_IP>:11434
+  python main.py
+  ```
+  *(To find your Laptop IP, run `ipconfig` in Windows PowerShell)*.
+
+- **Option B (Fully Standalone on Phone)**:
+  Run a quantized 1B/2B model directly inside Termux:
+  ```bash
+  python main.py
+  ```
+
+---
+
+## 🐧 3. Running on Linux / Raspberry Pi / SBC (Smart Home / Car / Robot)
+
+Ideal for Raspberry Pi 4/5, Orange Pi, Ubuntu servers, or smart vehicle hubs.
+
+### 1-Click Setup:
+```bash
+git clone https://github.com/innvo1516/Innvo.git
+cd Innvo
+chmod +x setup_linux.sh
+./setup_linux.sh
+```
+
+### Run as Foreground or Background Daemon:
+```bash
+# Foreground with terminal UI
+python3 main.py
+
+# Headless / Background service (e.g. for car/robot)
+nohup python3 main.py --no-voice > innvo.log 2>&1 &
 ```
 
 ---
 
-## 🛠️ In-App Commands
+## 🍎 4. Running on Mac (macOS)
 
-While chatting with Innvo in the terminal, you can type:
-- `/tools` — View all active built-in and self-developed tools with their RL Q-scores.
-- `/context` — View active multi-turn conversation history.
-- `/clear` — Reset active conversation context (start a fresh topic).
-- `/memories` — View all permanently approved memories and their RL Q-scores.
-- `/stats` — View Reinforcement Learning performance metrics.
-- `/voice on` / `/voice off` — Toggle Indian Neural Voice.
-- `/help` — Show help menu.
-- `exit` or `alvida` — Shutdown Innvo.
+```bash
+git clone https://github.com/innvo1516/Innvo.git
+cd Innvo
+pip3 install -r requirements.txt
+python3 main.py
+```
 
 ---
 
-## ⚡ Self-Developing Tools & Skill Synthesis
+## 🌐 5. Distributed Hive-Mind Cross-Device Sync
 
-Innvo can write new tools for itself on the fly:
-1. Simply ask: *"Innvo, ek naya tool banao jo mere laptop ki IP address nikaale"*
-2. Innvo synthesizes a Python tool, tests it in its execution sandbox, and verifies the output.
-3. Innvo asks for your approval:
-   > *"Sir, maine 'ip_fetcher' tool develop kiya hai. Test output: '192.168.1.5'. Kya main ise permanent skill library me save kar lu? (Haan/Nahi)"*
-4. Say **"Haan"** $\rightarrow$ It gets saved to `tools/dynamic/` and registered with a **+1.0 RL Q-score** for immediate reuse!
+Keep your laptop, phone, and Raspberry Pi brains synchronized without cloud servers:
+
+1. **On Device 1 (e.g. Laptop)**:
+   In the Innvo TUI, type:
+   ```
+   /sync
+   ```
+   This exports a lightweight micro-delta packet (`< 50 KB`) containing new memories, dynamic tools, and Knowledge Graph triples to `data/sync/`.
+
+2. **On Device 2 (e.g. Phone)**:
+   Send the micro-delta JSON file to the phone (via Bluetooth, local Wi-Fi, or Termux curl) and import it:
+   ```bash
+   python -c "from sync.sync_broker import SyncBroker; from pathlib import Path; SyncBroker().import_from_file(Path('sync_delta.json'))"
+   ```
+
+---
+
+## 🛡️ Sovereign Human Operator Security CLI
+
+You (the human operator) have exclusive sovereign control over Innvo's constitution and cold recovery:
+
+```bash
+# 1. View all 5 constitutional laws
+python security/admin_cli.py view-rules
+
+# 2. Generate a 12-word master recovery phrase
+python security/admin_cli.py generate-seed
+
+# 3. Re-sign rules after manual edits to constitution.json
+python security/admin_cli.py sign-rules
+
+# 4. Verify constitutional cryptographic HMAC-SHA256 integrity
+python security/admin_cli.py verify-rules
+
+# 5. Take an encrypted cold backup snapshot
+python security/admin_cli.py backup
+
+# 6. Resurrect Innvo from shadow vault
+python security/admin_cli.py resurrect
+```
+
+---
+
+## 🕹️ In-App Terminal Commands
+
+While chatting with Innvo, you can run any of the following commands:
+- `v` or `/listen`: Activate microphone for Hindi/English speech
+- `/continuous`: Toggle continuous hands-free voice loop
+- `/rules`: View constitutional laws & kill-switch tripwires
+- `/kg`: View semantic Knowledge Graph entity triples
+- `/idle on` / `/idle off`: Toggle autonomous background idle learning
+- `/sync`: Export a lightweight Hive-Mind Delta Sync packet
+- `/vault`: Check air-gapped cold snapshot status
+- `/tools`: View all active built-in & self-developed tools
+- `/memories`: View all permanent memories and RL Q-scores
+- `/context`: Inspect multi-turn short-term conversation context
+- `/clear`: Clear active conversation context (start fresh topic)
+- `/stats`: View Reinforcement Learning performance metrics
+- `/voice on` / `/voice off`: Toggle Indian neural voice
+- `/help`: Display help center
+- `exit` or `alvida`: Shutdown Innvo

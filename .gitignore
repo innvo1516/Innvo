@@ -11,6 +11,7 @@ data/cache/
 # Test artifacts
 data_test*/
 data_test_tools/
+data/test_*
 
 # Environment & Secrets
 .env

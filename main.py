@@ -15,6 +15,8 @@ from ui.terminal_ui import TerminalUI
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Innvo - Cross-Platform Local RL AI Assistant")
+    parser.add_argument("--server", action="store_true", help="Start Innvo HTTP API Bridge for Flutter & Web clients")
+    parser.add_argument("--port", type=int, default=8000, help="API server port (default: 8000)")
     parser.add_argument("--no-voice", action="store_true", help="Start Innvo in text-only mode without speech output")
     parser.add_argument("--continuous", action="store_true", help="Start immediately in continuous hands-free voice mode")
     parser.add_argument("--voice", type=str, default=config.DEFAULT_VOICE, help=f"TTS Voice name (default: {config.DEFAULT_VOICE})")
@@ -28,6 +30,12 @@ def main():
     orchestrator = InnvoOrchestrator(voice_enabled=voice_enabled)
     if args.voice:
         orchestrator.audio.voice_name = args.voice
+
+    # Start API Bridge Server if requested
+    if args.server:
+        from api.server import run_server
+        run_server(port=args.port, orchestrator=orchestrator)
+        return
 
     # Launch Terminal UI
     ui = TerminalUI(orchestrator)

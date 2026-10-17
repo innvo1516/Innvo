@@ -27,7 +27,12 @@ class InnvoAPIHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0].rstrip("/")
 
-        if path in ["", "/", "/api/health"]:
+        if path in ["", "/"]:
+            from .web_ui import get_web_ui_html
+            self._set_cors_headers(200, content_type="text/html; charset=utf-8")
+            self.wfile.write(get_web_ui_html().encode("utf-8"))
+
+        elif path == "/api/health":
             self._set_cors_headers(200)
             res = {
                 "status": "online",
